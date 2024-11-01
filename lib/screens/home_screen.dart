@@ -1,142 +1,126 @@
 import 'package:flutter/material.dart';
-import 'package:telegram/services/auth_service.dart';
+import 'package:telegram/screens/auth_screen.dart';
+import 'package:telegram/screens/chat_screen.dart'; // Import ChatScreen
+import 'package:telegram/screens/contact_screen.dart'; // Import ContactScreen
+import 'package:telegram/screens/setting_screen.dart'; // Import SettingScreen
+import 'package:shared_preferences/shared_preferences.dart';
 
-class HomeScreen extends StatelessWidget {
-  final AuthService authService = AuthService();
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
 
-  void _showLogoutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Logout', style: TextStyle(color: Colors.blueAccent)),
-          content: Text('Apakah Anda yakin ingin keluar?'),
-          actions: [
-            TextButton(
-              onPressed: () async {
-                await authService.logout(); // Panggil fungsi logout
-                Navigator.of(context)
-                    .pushReplacementNamed('/auth'); // Navigasi ke AuthScreen
-              },
-              child: Text('Ya', style: TextStyle(color: Colors.blueAccent)),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Tutup dialog
-              },
-              child: Text('Tidak', style: TextStyle(color: Colors.grey)),
-            ),
-          ],
-        );
-      },
-    );
-  }
+class _HomeScreenState extends State<HomeScreen> {
+  int _currentIndex = 0; // Menyimpan index tab saat ini
+
+  final List<Widget> _screens = [
+    ChatScreen(), // Halaman untuk obrolan
+    ContactScreen(), // Halaman untuk kontak
+    SettingScreen(), // Halaman untuk pengaturan
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Telegram',
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: IconThemeData(color: Colors.black),
+        title: Center(
+          child: Text(
+            "Telegram Clone App",
+            style: TextStyle(
+              fontFamily: 'HelveticaNeue',
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              color: Colors.white,
+            ),
+          ),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.menu, size: 28),
+          onPressed: () {
+            // Aksi untuk membuka menu
+          },
+        ),
         actions: [
           IconButton(
-            icon: Icon(Icons.search, color: Colors.black),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: Icon(Icons.more_vert, color: Colors.black),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: Icon(Icons.logout, color: Colors.black),
+            icon: Icon(Icons.search, size: 28),
             onPressed: () {
-              _showLogoutDialog(context); // Tampilkan dialog konfirmasi logout
+              // Aksi pencarian
             },
           ),
         ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(
-            horizontal: 8.0, vertical: 8.0), // Tambahkan padding
-        child: ListView.builder(
-          itemCount: 10,
-          itemBuilder: (context, index) {
-            return Card(
-              margin: EdgeInsets.symmetric(vertical: 8),
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(12), // Buat sudut lebih melengkung
-              ),
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: Colors.blueAccent,
-                  child: Text('U$index', style: TextStyle(color: Colors.white)),
-                ),
-                title: Text(
-                  'Pengguna $index',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: Colors.black,
-                  ),
-                ),
-                subtitle: Text(
-                  'Pesan terakhir dari Pengguna $index',
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
-                trailing: Text(
-                  '10:00 AM',
-                  style: TextStyle(color: Colors.grey),
-                ),
-                onTap: () {
-                  // Tindakan saat mengetuk pengguna
-                },
-              ),
-            );
-          },
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.blueAccent,
-        child: Icon(Icons.message),
-        onPressed: () {
-          // Tindakan untuk membuat pesan baru
-        },
-      ),
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.white,
+        backgroundColor: Color(0xFF0088CC), // Warna biru khas Telegram
         elevation: 4,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0), // Tambahkan padding
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              IconButton(
-                icon: Icon(Icons.home, color: Colors.black),
-                onPressed: () {
-                  // Tindakan untuk beranda
-                },
-              ),
-              IconButton(
-                icon: Icon(Icons.chat, color: Colors.black),
-                onPressed: () {
-                  // Tindakan untuk chat
-                },
-              ),
-              IconButton(
-                icon: Icon(Icons.person, color: Colors.black),
-                onPressed: () {
-                  // Tindakan untuk profil
-                },
-              ),
-            ],
-          ),
-        ),
       ),
+      body: _screens[_currentIndex], // Menampilkan layar sesuai index saat ini
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Aksi untuk memulai chat baru
+        },
+        child: Icon(Icons.edit, size: 20), // Ukuran ikon pensil lebih kecil
+        backgroundColor: Color(0xFF0088CC), // Warna yang sama dengan AppBar
+        mini: true, // Membuat tombol lebih kecil
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat, color: Color(0xFF0088CC)),
+            label: 'Chat',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.contacts, color: Color(0xFF0088CC)),
+            label: 'Kontak',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings, color: Color(0xFF0088CC)),
+            label: 'Pengaturan',
+          ),
+        ],
+        currentIndex: _currentIndex, // Menunjukkan tab yang aktif
+        onTap: (index) {
+          setState(() {
+            _currentIndex =
+                index; // Ubah index tab saat ini sesuai yang dipilih
+          });
+        },
+        selectedItemColor: Color(0xFF0088CC),
+        unselectedItemColor: Colors.grey,
+        showUnselectedLabels: true,
+      ),
+    );
+  }
+
+  void _showLogoutConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Konfirmasi Logout',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: Text('Apakah Anda yakin ingin keluar?'),
+          actions: [
+            TextButton(
+              child: Text('Batal', style: TextStyle(color: Color(0xFF0088CC))),
+              onPressed: () {
+                Navigator.of(context).pop(); // Tutup dialog
+              },
+            ),
+            TextButton(
+              child: Text('Logout', style: TextStyle(color: Colors.red)),
+              onPressed: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                await prefs.remove('isLoggedIn'); // Hapus status login
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => AuthScreen(), // Arahkan ke AuthScreen
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

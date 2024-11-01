@@ -1,4 +1,5 @@
 import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/models.dart';
 import '../utils/session_manager.dart';
 
 class AuthService {
@@ -12,14 +13,14 @@ class AuthService {
     account = Account(client);
   }
 
-  Future<bool> register(String name, String email, String password) async {
+  Future<bool> register(String email, String password) async {
     try {
       await account.create(
         userId: ID.unique(),
         email: email,
         password: password,
-        name: name,
       );
+
       await SessionManager.saveLoginStatus(true);
       return true;
     } catch (e) {
@@ -34,11 +35,7 @@ class AuthService {
       await SessionManager.saveLoginStatus(true);
       return true;
     } catch (e) {
-      if (e is AppwriteException) {
-        print("Login error: ${e.message}");
-      } else {
-        print("Login error: $e");
-      }
+      print("Login error: $e");
       return false;
     }
   }
@@ -54,6 +51,31 @@ class AuthService {
 
   Future<bool> isLoggedIn() async {
     return await SessionManager.isLoggedIn();
+  }
+
+  Future<User?> getCurrentUser() async {
+    try {
+      if (await isLoggedIn()) {
+        final user = await account.get();
+        return user;
+      } else {
+        print('User is not logged in');
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching user: $e');
+      return null;
+    }
+  }
+
+  Future<String> getUserName() async {
+    try {
+      final user = await getCurrentUser();
+      return user?.name ?? "Selamat Datang"; // Mengambil nama pengguna
+    } catch (e) {
+      print('Error fetching user name: $e');
+      return "Selamat Datang"; // Default jika terjadi kesalahan
+    }
   }
 }
 

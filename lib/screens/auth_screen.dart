@@ -29,7 +29,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
     if (isLoginMode) {
       if (email.isEmpty || password.isEmpty) {
-        _showErrorDialog('Please enter both email and password.');
+        _showErrorDialog('Silakan masukkan email dan kata sandi.');
         return;
       }
 
@@ -38,24 +38,25 @@ class _AuthScreenState extends State<AuthScreen> {
         await SessionManager.saveLoginStatus(true);
         _showLoginSuccessDialog();
       } else {
-        _showErrorDialog('Login failed. Please check your credentials.');
+        _showErrorDialog('Gagal masuk. Periksa kembali kredensial Anda.');
       }
     } else {
       if (name.isEmpty || email.isEmpty || password.isEmpty) {
-        _showErrorDialog('Please fill all fields.');
+        _showErrorDialog('Silakan isi semua kolom.');
         return;
       }
 
-      bool success = await _authService.register(name, email, password);
+      bool success = await _authService.register(
+          email, password); // Ganti nama menjadi email
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Account created successfully! Please log in.'),
+            content: Text('Akun berhasil dibuat! Silakan masuk.'),
           ),
         );
         _toggleMode();
       } else {
-        _showErrorDialog('Registration failed. Please try again.');
+        _showErrorDialog('Registrasi gagal. Silakan coba lagi.');
       }
     }
   }
@@ -64,8 +65,8 @@ class _AuthScreenState extends State<AuthScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Login Successful'),
-        content: const Text('You have successfully logged in!'),
+        title: const Text('Masuk Berhasil'),
+        content: const Text('Anda berhasil masuk!'),
         actions: [
           TextButton(
             onPressed: () {
@@ -112,19 +113,40 @@ class _AuthScreenState extends State<AuthScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                Image.asset(
+                  'assets/telegram_icon.png',
+                  height: 100,
+                ),
+                const SizedBox(height: 16),
                 const Text(
-                  'Welcome back!',
+                  'Selamat Datang di ChatApp!',
                   style: TextStyle(
-                    fontSize: 32,
+                    fontSize: 28,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
+                    shadows: [
+                      Shadow(
+                        offset: Offset(0, 2),
+                        blurRadius: 5.0,
+                        color: Colors.black38,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Aplikasi percakapan sederhana dan cepat. Mulailah terhubung dengan teman-teman Anda.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.white70,
                   ),
                 ),
                 const SizedBox(height: 16),
                 if (!isLoginMode)
                   _buildTextField(
                     controller: _nameController,
-                    label: 'Name',
+                    label: 'Nama',
                     icon: Icons.person,
                   ),
                 const SizedBox(height: 16),
@@ -136,7 +158,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 const SizedBox(height: 16),
                 _buildTextField(
                   controller: _passwordController,
-                  label: 'Password',
+                  label: 'Kata Sandi',
                   icon: Icons.lock,
                   obscureText: true,
                 ),
@@ -149,9 +171,11 @@ class _AuthScreenState extends State<AuthScreen> {
                       borderRadius: BorderRadius.circular(30),
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 16),
+                    elevation: 5,
+                    shadowColor: Colors.black45,
                   ),
                   child: Text(
-                    isLoginMode ? 'Login' : 'Register',
+                    isLoginMode ? 'Masuk' : 'Daftar',
                     style: const TextStyle(
                       color: Color(0xFF0083B0),
                       fontWeight: FontWeight.bold,
@@ -163,9 +187,13 @@ class _AuthScreenState extends State<AuthScreen> {
                   onPressed: _toggleMode,
                   child: Text(
                     isLoginMode
-                        ? "Don't have an account? Sign Up"
-                        : "Already have an account? Login",
-                    style: const TextStyle(color: Colors.white),
+                        ? "Belum punya akun? Daftar"
+                        : "Sudah punya akun? Masuk",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
               ],
